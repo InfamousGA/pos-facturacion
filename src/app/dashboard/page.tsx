@@ -30,7 +30,7 @@ async function DashboardContent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-wrap items-center justify-between gap-4">
+    <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl font-bold">
           Hola, {perfil?.nombre_completo ?? user.email}
@@ -44,6 +44,27 @@ async function DashboardContent() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <Link
+          href="/dashboard/pos"
+          className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold transition"
+        >
+          Punto de Venta
+        </Link>
+
+        <Link
+          href="/dashboard/ventas"
+          className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
+        >
+          Ventas
+        </Link>
+
+        <Link
+          href="/dashboard/clientes"
+          className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
+        >
+          Clientes
+        </Link>
+
         <Link
           href="/dashboard/productos"
           className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
@@ -62,7 +83,7 @@ async function DashboardContent() {
           <>
             <Link
               href="/dashboard/usuarios"
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium transition"
+              className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
             >
               Usuarios
             </Link>
@@ -93,7 +114,7 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
       <Suspense
         fallback={
-          <div className="max-w-4xl mx-auto text-zinc-400">
+          <div className="max-w-5xl mx-auto text-zinc-400">
             Cargando panel...
           </div>
         }
