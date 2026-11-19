@@ -45,5 +45,3 @@ CREATE POLICY "admin cambia imagenes" ON storage.objects FOR UPDATE TO authentic
 USING (bucket_id = 'imagenes' AND public.es_admin());
 CREATE POLICY "admin borra imagenes" ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'imagenes' AND public.es_admin());
-
-
