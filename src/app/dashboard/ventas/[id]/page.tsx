@@ -4,6 +4,7 @@ import { connection } from 'next/server'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import PrintButton from './PrintButton'
+import AnularVentaButton from './AnularVentaButton'
 
 const ETIQUETAS_PAGO: Record<string, string> = {
   efectivo: 'Efectivo',
@@ -27,8 +28,9 @@ async function VentaDetalleContent({
 
   if (!user) redirect('/login')
 
-  const [{ data: venta }, { data: detalles }, { data: config }] =
+  const [{ data: miPerfil }, { data: venta }, { data: detalles }, { data: config }] =
     await Promise.all([
+      supabase.from('perfiles').select('rol').eq('id', user.id).single(),
       supabase.from('ventas').select('*').eq('id', id).maybeSingle(),
       supabase
         .from('detalle_ventas')
@@ -40,22 +42,43 @@ async function VentaDetalleContent({
 
   if (!venta) notFound()
 
-  const { data: vendedor } = await supabase
-    .from('perfiles')
-    .select('nombre_completo')
-    .eq('id', venta.vendedor_id)
-    .maybeSingle()
+  const [{ data: vendedor }, { data: anulador }] = await Promise.all([
+    supabase
+      .from('perfiles')
+      .select('nombre_completo')
+      .eq('id', venta.vendedor_id)
+      .maybeSingle(),
+    venta.anulada_por
+      ? supabase
+          .from('perfiles')
+          .select('nombre_completo')
+          .eq('id', venta.anulada_por)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
+
+  const puedeAnular =
+    miPerfil?.rol === 'administrador' && venta.estado === 'completada'
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link
           href="/dashboard/ventas"
           className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
         >
           ← Volver a ventas
         </Link>
-        <PrintButton />
+
+        <div className="flex items-center gap-3">
+          {puedeAnular && (
+            <AnularVentaButton
+              ventaId={venta.id}
+              numeroFactura={venta.numero_factura}
+            />
+          )}
+          <PrintButton />
+        </div>
       </div>
 
       <article className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-6 print:bg-white print:text-black print:border-zinc-300 print:rounded-none print:p-0">
@@ -193,9 +216,25 @@ async function VentaDetalleContent({
           </div>
         </footer>
 
-        {venta.estado === 'anulada' && venta.motivo_anulacion && (
-          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/40 text-xs text-red-400 print:text-red-700 print:border-red-400">
-            <strong>Motivo de anulación:</strong> {venta.motivo_anulacion}
+        {venta.estado === 'anulada' && (
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/40 text-xs text-red-400 space-y-1 print:text-red-700 print:border-red-400">
+            <div>
+              <strong>Factura anulada</strong>
+              {anulador?.nombre_completo
+                ? ` por ${anulador.nombre_completo}`
+                : ''}
+              {venta.anulada_at
+                ? ` el ${new Date(venta.anulada_at).toLocaleString('es-VE', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}`
+                : ''}
+            </div>
+            {venta.motivo_anulacion && (
+              <div>
+                <strong>Motivo:</strong> {venta.motivo_anulacion}
+              </div>
+            )}
           </div>
         )}
       </article>

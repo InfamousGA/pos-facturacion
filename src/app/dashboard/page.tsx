@@ -59,6 +59,13 @@ async function DashboardContent() {
         </Link>
 
         <Link
+          href="/dashboard/reportes"
+          className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
+        >
+          Reportes
+        </Link>
+
+        <Link
           href="/dashboard/clientes"
           className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium transition"
         >
